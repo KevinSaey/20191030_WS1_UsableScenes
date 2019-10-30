@@ -44,14 +44,31 @@ public class VoxelGrid
         }
     }
 
-    public void LoopGrid(Action<Voxel> acionOnVoxel)
+    //alternative to delegates (using actions)
+    public IEnumerable<Voxel> GetVoxels()
+    {
+        for (int y = 0; y < GridDimension.y; y++)
+            for (int x = 0; x < GridDimension.x; x++)
+                for (int z = 0; z < GridDimension.z; z++)
+                {
+                    yield return _grid[y][x][z];
+                }
+    }
+
+
+    void DoSomething(int information)
+    {
+
+    }
+
+    public void LoopGrid(Action<Voxel> actionOnVoxel)
     {
         for (int y = 0; y < GridDimension.y; y++)
             for (int x = 0; x < GridDimension.x; x++)
                 for (int z = 0; z < GridDimension.z; z++)
                 {
                     Voxel currentVoxel = _grid[y][x][z];
-                    acionOnVoxel(currentVoxel);
+                    actionOnVoxel(currentVoxel);
                 }
     }
 
@@ -59,6 +76,12 @@ public class VoxelGrid
     {
         Action<Voxel> flip = FlipVoxel;//signature needs to match the function
         LoopGrid(flip);
+
+        /*//Alternative to Delegate Actions
+        foreach (var vox in GetVoxels())
+        {
+            FlipVoxel(vox);
+        }*/
     }
 
     void FlipVoxel(Voxel vox)
@@ -184,12 +207,9 @@ public class VoxelGrid
                         foreach (var direction in directions)
                         {
                             var newIndex = index + direction;
-                            if (CheckIndex(newIndex))
+                            if (CheckIndex(newIndex) && _grid[newIndex.y][newIndex.x][newIndex.z].Status.Alive)
                             {
-                                if (_grid[newIndex.y][newIndex.x][newIndex.z].Status.Alive)
-                                {
-                                    _grid[y][x][z].AddJoint(_grid[newIndex.y][newIndex.x][newIndex.z], 250f);
-                                }
+                                _grid[y][x][z].AddJoint(_grid[newIndex.y][newIndex.x][newIndex.z], 250f);
                             }
                         }
                     }

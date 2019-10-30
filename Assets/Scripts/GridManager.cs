@@ -14,6 +14,7 @@ public class GridManager : MonoBehaviour
     float _margin;
 
     bool _add = false;
+    bool _instantiated = false;
     public bool Add
     {
         get
@@ -24,6 +25,7 @@ public class GridManager : MonoBehaviour
         {
             if (value != _add)
             {
+                Debug.Log("Switchted Add Set");
                 if (value) _grid.SetClickable(value);
             }
             _add = value;
@@ -33,7 +35,6 @@ public class GridManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InstantiateGrid();
 
     }
 
@@ -60,10 +61,10 @@ public class GridManager : MonoBehaviour
 
                     if (status.Alive != _add)
                     {
-                        
+
                         status.Alive = !status.Alive;
                     }
-                    
+
                 }
             }
         }
@@ -76,31 +77,53 @@ public class GridManager : MonoBehaviour
         int buttonWidth = 170;
         int buttonCounter = 0;
 
-        if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
-            buttonWidth, buttonHeight), "Grow grid"))
+        if (!_instantiated)
         {
-            _grid.AddLayerY(_gridDimensions.y);
-            _grid.GridDimension += Vector3Int.up;
-            _gridDimensions = _grid.GridDimension;
-            _grid.SetClickable(_add);
+            _gridDimensions.x = (int)GUI.HorizontalSlider(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), _gridDimensions.x, 1, 30);
+            _gridDimensions.y = (int)GUI.HorizontalSlider(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), _gridDimensions.y, 1, 30);
+            _gridDimensions.z = (int)GUI.HorizontalSlider(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), _gridDimensions.z, 1, 30);
+            if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), "Create grid"))
+            {
+                InstantiateGrid();
+                _instantiated = true;
+            }
         }
-        if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
-            buttonWidth, buttonHeight), "Flip grid"))
+        else
         {
-            _grid.FlipGrid();
-            _grid.SetClickable(!_add);
-            _grid.SetClickable(_add);
-        }
 
 
-        Add = GUI.Toggle(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+
+            if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), "Grow grid"))
+            {
+                _grid.AddLayerY(_gridDimensions.y);
+                _grid.GridDimension += Vector3Int.up;
+                _gridDimensions = _grid.GridDimension;
+                _grid.SetClickable(_add);
+            }
+            if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), "Flip grid"))
+            {
+                _grid.FlipGrid();
+                _grid.SetClickable(!_add);
+                _grid.SetClickable(_add);
+            }
+
+
+
+            Add = GUI.Toggle(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
             buttonWidth, buttonHeight), Add, "Add voxels");
 
-        if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
-            buttonWidth, buttonHeight), "Simulate"))
-        {
-            _grid.BuildJoints();
-            _grid.EnableKinematic();
+            if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+                buttonWidth, buttonHeight), "Simulate"))
+            {
+                _grid.BuildJoints();
+                _grid.EnableKinematic();
+            }
         }
     }
 }
