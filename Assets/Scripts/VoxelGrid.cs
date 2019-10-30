@@ -81,6 +81,7 @@ public class VoxelGrid
         }
     }
 
+
     void DisableDeadCollider(Voxel vox)
     {
         if (!vox.Status.Alive)
@@ -107,6 +108,17 @@ public class VoxelGrid
         }
 
         vox.Status.Clickable = clickable;
+    }
+
+    public void EnableKinematic()
+    {
+        Action<Voxel> enableKinematic = EnableVoxelKinematic;//signature needs to match the function
+        LoopGrid(enableKinematic);
+    }
+
+    void EnableVoxelKinematic(Voxel vox)
+    {
+        vox.SwitchKinematic(false);
     }
 
     List<Voxel> GetNeighbours(Vector3Int index)
@@ -150,8 +162,39 @@ public class VoxelGrid
         return true;
     }
 
-    void BuildJoints()
+    public void BuildJoints()
     {
+        for (int y = 0; y < GridDimension.y; y++)
+        {
+            for (int x = 0; x < GridDimension.x; x++)
+            {
+                for (int z = 0; z < GridDimension.z; z++)
+                {
+                    if (_grid[y][x][z].Status.Alive)
+                    {
+                        var index = new Vector3Int(x, y, z);
 
+                        List<Vector3Int> directions = new List<Vector3Int>
+                        {
+                            new Vector3Int(1, 0, 0),//East
+                            new Vector3Int(0, 0, 1),//North
+                            new Vector3Int(0,1,0), //Up
+                        };
+
+                        foreach (var direction in directions)
+                        {
+                            var newIndex = index + direction;
+                            if (CheckIndex(newIndex))
+                            {
+                                if (_grid[newIndex.y][newIndex.x][newIndex.z].Status.Alive)
+                                {
+                                    _grid[y][x][z].AddJoint(_grid[newIndex.y][newIndex.x][newIndex.z], 250f);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -5,21 +5,40 @@ using UnityEngine;
 public class Voxel
 {
     public Vector3Int Index;
-    GameObject _goVoxel;
+    public GameObject GOVoxel;
     public VoxelStatus Status;
+    Rigidbody _rigidBody;
+
+    float _mass = 1f;
 
     public Voxel(Vector3Int index, float voxelSize, float margin)
     {
         Index = index;
-        _goVoxel = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        _goVoxel.name = $"Voxel {Index}";
-        _goVoxel.tag = "Voxel";
-        _goVoxel.transform.localScale = Vector3.one * voxelSize;
+        GOVoxel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        GOVoxel.name = $"Voxel {Index}";
+        GOVoxel.tag = "Voxel";
+        GOVoxel.transform.localScale = Vector3.one * voxelSize;
 
-        //move the grid to the centre of the camera
-        _goVoxel.transform.position = (Vector3)Index * (voxelSize+margin);
-        Status = _goVoxel.AddComponent<VoxelStatus>();
+        GOVoxel.transform.position = (Vector3)Index * (voxelSize + margin);
+        _rigidBody = GOVoxel.AddComponent<Rigidbody>();
+        _rigidBody.mass = _mass;
+        _rigidBody.isKinematic = true;
+
+        Status = GOVoxel.AddComponent<VoxelStatus>();
         Status.Alive = true;
     }
+
+    public void AddJoint(Voxel voxToJoint, float breakForce)
+    {
+        var joint = GOVoxel.AddComponent<FixedJoint>();
+        joint.connectedBody = voxToJoint.GOVoxel.GetComponent<Rigidbody>();
+        joint.breakForce = breakForce;
+    }
+
+    public void SwitchKinematic(bool kinematic)
+    {
+        _rigidBody.isKinematic = false;
+    }
+
 }
 

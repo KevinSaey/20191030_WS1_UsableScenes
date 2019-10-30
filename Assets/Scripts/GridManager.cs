@@ -34,6 +34,7 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         InstantiateGrid();
+
     }
 
     void InstantiateGrid()
@@ -95,6 +96,11 @@ public class GridManager : MonoBehaviour
         Add = GUI.Toggle(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
             buttonWidth, buttonHeight), Add, "Add voxels");
 
-
+        if (GUI.Button(new Rect(padding, padding + ((buttonHeight + padding) * buttonCounter++),
+            buttonWidth, buttonHeight), "Simulate"))
+        {
+            _grid.BuildJoints();
+            _grid.EnableKinematic();
+        }
     }
 }
